@@ -4,15 +4,15 @@
   "description": "Easily copy LaTeX equations from Wikipedia and KaTeX-enabled websites with a single click.",
   "version": "1.0.0",
   "icons": {
-    "16": "panda16.png",
-    "32": "panda32.png",
-    "128": "panda128.png"
+    "16": "icons/panda16.png",
+    "32": "icons/panda32.png",
+    "128": "icons/panda128.png"
   },
   "action": {
     "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "128": "icons/icon128.png"
+      "16": "icons/panda16.png",
+      "32": "icons/panda32.png",
+      "128": "icons/panda128.png"
     }
   },
   "content_scripts": [
