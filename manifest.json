@@ -1,10 +1,19 @@
 {
-  "name": "latex copier",
-  "description": "Click on LaTeX equations to copy their source code",
-  "version": "0.0.0.1",
   "manifest_version": 3,
+  "name": "LaTeX Copier",
+  "description": "Easily copy LaTeX equations from Wikipedia and KaTeX-enabled websites with a single click.",
+  "version": "1.0.0",
+  "icons": {
+    "16": "panda16.png",
+    "32": "panda32.png",
+    "128": "panda128.png"
+  },
   "action": {
-    "default_icon": "panda.png"
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "128": "icons/icon128.png"
+    }
   },
   "content_scripts": [
       {
@@ -13,9 +22,6 @@
         "matches": ["<all_urls>"]
       }
   ],
-  "icons": {
-    "128": "panda.png"
-  },
   "permissions": [
     "clipboardWrite"
   ]
