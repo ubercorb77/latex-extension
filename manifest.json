@@ -1,0 +1,29 @@
+{
+  "name": "latex copier",
+  "description": "Click on LaTeX equations to copy their source code",
+  "version": "0.0.0.1",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "hello.html",
+    "default_icon": "hobbes128.png"
+  },
+  "content_scripts": [
+      {
+        "js": ["scripts/content.js"],
+        "css": ["styles/styles.css"],
+        "matches": ["<all_urls>"]
+      }
+  ],
+  "icons": {
+    "128": "hobbes128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["https://claude.ai/*"]
+    }
+  ],
+  "permissions": [
+    "clipboardWrite"
+  ]
+}
