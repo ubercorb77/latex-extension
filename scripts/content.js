@@ -60,9 +60,11 @@ function setupCopyableElement(element, extractorFn) {
 }
 
 function cleanWikipediaLatex(latex) {
-  // Remove displaystyle and textstyle wrappers
   return latex
-    .replace(/^{\\(?:display|text)style\s+(.+)}$/, '$1') // Remove outer wrapper
+    // Remove displaystyle and textstyle wrappers
+    .replace(/^{\\(?:display|text)style\s+(.+)}$/, '$1')
+    // Remove common environment wrappers
+    .replace(/^\\begin{(?:equation|align|gather|multline)}\s*(.+?)\s*\\end{(?:equation|align|gather|multline)}$/, '$1')
     .trim();
 }
 

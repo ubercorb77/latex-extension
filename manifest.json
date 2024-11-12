@@ -16,12 +16,6 @@
   "icons": {
     "128": "panda.png"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["assets/*"],
-      "matches": ["https://claude.ai/*"]
-    }
-  ],
   "permissions": [
     "clipboardWrite"
   ]

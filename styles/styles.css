@@ -1,24 +1,24 @@
 .latex-copyable:hover {
-    background-color: rgba(74, 144, 226, 0.1) !important;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-  }
-  
-  .latex-copier-notification {
-    position: fixed;
-    background-color: #4CAF50;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
-    z-index: 10000;
-    animation: fadeOut 2s forwards;
-    pointer-events: none; /* Prevent notification from interfering with clicks */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Add subtle shadow for better visibility */
-  }
-  
-  @keyframes fadeOut {
-    0% { opacity: 1; }
-    70% { opacity: 1; }
-    100% { opacity: 0; }
-  }
+  background-color: rgba(74, 144, 226, 0.1) !important;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.latex-copier-notification {
+  position: fixed;
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 10000;
+  animation: fadeOut 2s forwards;
+  pointer-events: none; /* Prevent notification from interfering with clicks */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Add subtle shadow for better visibility */
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
