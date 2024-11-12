@@ -1,3 +1,4 @@
+// content.js
 console.log('LaTeX Copier Extension loaded!');
 
 function findLatexElements() {
@@ -58,31 +59,39 @@ function setupCopyableElement(element, extractorFn) {
   });
 }
 
+function cleanWikipediaLatex(latex) {
+  // Remove displaystyle and textstyle wrappers
+  return latex
+    .replace(/^{\\(?:display|text)style\s+(.+)}$/, '$1') // Remove outer wrapper
+    .trim();
+}
+
 function extractWikipediaLatex(element) {
   // SVG annotation (primary method)
   const svgElement = element.querySelector('svg');
   if (svgElement) {
     const annotation = svgElement.querySelector('annotation');
     if (annotation) {
-      return annotation.textContent;
+      return cleanWikipediaLatex(annotation.textContent);
     }
   }
 
   // Image alt text fallback
   const imgElement = element.querySelector('img');
   if (imgElement && imgElement.alt) {
-    return imgElement.alt;
+    return cleanWikipediaLatex(imgElement.alt);
   }
 
   // Fallback source element
   const fallbackElement = element.querySelector('.mwe-math-fallback-source-inline');
   if (fallbackElement) {
-    return fallbackElement.textContent;
+    return cleanWikipediaLatex(fallbackElement.textContent);
   }
 
-  return element.getAttribute('data-latex') || 
-         element.getAttribute('alttext') || 
-         '';
+  const latex = element.getAttribute('data-latex') || 
+                element.getAttribute('alttext') || 
+                '';
+  return cleanWikipediaLatex(latex);
 }
 
 function extractKatexLatex(element) {
