@@ -4,7 +4,7 @@
   "version": "0.0.0.1",
   "manifest_version": 3,
   "action": {
-    "default_icon": "hobbes128.png"
+    "default_icon": "panda.png"
   },
   "content_scripts": [
       {
@@ -14,7 +14,7 @@
       }
   ],
   "icons": {
-    "128": "hobbes128.png"
+    "128": "panda.png"
   },
   "web_accessible_resources": [
     {
