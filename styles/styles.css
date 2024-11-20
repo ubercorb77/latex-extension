@@ -1,22 +1,12 @@
-/* Remove hover effect for math elements only */
-.mwe-math-element.latex-copyable:hover {
-  background-color: transparent !important;
-}
+/* ==== hover ==== */
 
-/* Keep original hover for KaTeX */
 .latex-copyable:hover {
   background-color: rgba(74, 144, 226, 0.1) !important;
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
 
-/* Add specific hover for Wikipedia math images */
-.mwe-math-element img:hover {
-  background-color: rgba(74, 144, 226, 0.1) !important;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
+/* ==== wrapper ====*/
 
 .latex-copyable-wrapper {
   position: relative;
@@ -28,6 +18,9 @@
   display: inline-block;
   vertical-align: baseline;
 }
+
+
+/* ==== notification ==== */
 
 .latex-copier-notification {
   width: max-content;  /* this would force it to be as wide as its content needs */

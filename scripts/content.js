@@ -21,25 +21,30 @@ function findLatexElements() {
   try {
     // Wikipedia math elements
     const wikiMathElements = document.querySelectorAll('.mwe-math-element');
-    
-    // KaTeX elements (both display and inline)
-    const katexElements = document.querySelectorAll('.katex-display, .katex:not(.katex-display .katex)');
-    
     console.log('Found Wiki math elements:', wikiMathElements.length);
-    console.log('Found KaTeX elements:', katexElements.length);
 
     // Process Wikipedia elements
     wikiMathElements.forEach(element => {
       if (!element.dataset.latexCopierInitialized) {
-        makeWikiElementCopyable(element);
+        // for wikipedia elements, target the <img> elem (if there is one) inside of the .mwe-math-element elem
+        const imgElement = element.querySelector('img');
+        if (imgElement) {
+          element = imgElement;
+        }
+        setupCopyableElement(element, "wikipedia");
         element.dataset.latexCopierInitialized = 'true';
       }
     });
+        
+    // KaTeX elements (both display and inline)
+    const katexElements = document.querySelectorAll('.katex-display, .katex:not(.katex-display .katex)');
+    // ".katex:not(.katex-display .katex)" selects for elems with class katex but excludes those that are inside an element with the class katex-display
+    console.log('Found KaTeX elements:', katexElements.length);
 
     // Process KaTeX elements
     katexElements.forEach(element => {
       if (!element.dataset.latexCopierInitialized) {
-        makeKatexElementCopyable(element);
+        setupCopyableElement(element, "katex");
         element.dataset.latexCopierInitialized = 'true';
       }
     });
@@ -48,19 +53,21 @@ function findLatexElements() {
   }
 }
 
-function makeWikiElementCopyable(element) {
-  setupCopyableElement(element, extractWikipediaLatex);
-}
+function setupCopyableElement(element, type) {
+  // const timestamp = () => performance.now().toFixed(2); // debugging
 
-function makeKatexElementCopyable(element) {
-  setupCopyableElement(element, extractKatexLatex);
-}
-
-function setupCopyableElement(element, extractorFn) {
   if (!element) {
     console.error('Attempted to setup copyable element on null element');
     return;
   }
+
+  /*
+  0. create a wrapper element (v1.1.0) to be the parent of the notif,
+     instead of the parent being document.body (v1.0.0)
+  1. set cursor to pointer
+  2. add latex-copyable class
+  3. add click handler
+  */
 
   // Check if element already has a positioned ancestor
   let wrapper = element.closest('.latex-copyable-wrapper');
@@ -83,21 +90,27 @@ function setupCopyableElement(element, extractorFn) {
     element.parentNode.insertBefore(wrapper, element);
     wrapper.appendChild(element);
   }
-  
-  // Set cursor style
-  if (element.classList.contains('mwe-math-element')) {
-    // for wikipedia elements, set cursor on the img inside the elem
-    const imgElement = element.querySelector('img');
-    if (imgElement) {
-      imgElement.style.cursor = 'pointer';
-    }
-  } else {
-    // for non-wikipedia elements (katex), set cursor on the whole elem
-    element.style.cursor = 'pointer';
-  }
 
-  element.classList.add('latex-copyable');
+  element.style.cursor = 'pointer';
+  // console.log(`[${timestamp()}] Added cursor style`); // debugging
+
+  if (type === "wikipedia") {
+    element.classList.add('latex-copyable');
+  } else if (type === "katex") {
+    wrapper.classList.add('latex-copyable');
+  } // god this code is kinda slop. pls forgive me
+
+  // console.log(`[${timestamp()}] Added latex-copyable class. Classes now:`, element.className); // debugging
+  // console.log(`[${timestamp()}] Element:`, element); // debugging
   
+  if (type === "wikipedia") {
+    var extractorFn = extractWikipediaLatex;
+  } else if (type === "katex") {
+    var extractorFn = extractKatexLatex;
+  } else {
+    // console.error('Invalid type:', type); // this should never happen unless you literally make a typo
+    return;
+  }
   element.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -119,6 +132,7 @@ function setupCopyableElement(element, extractorFn) {
       showNotification(element, 'ERROR');
     }
   });
+  // console.log(`[${timestamp()}] Added click handler`); // debugging
 }
 
 async function copyToClipboard(text) {
@@ -162,6 +176,10 @@ function extractWikipediaLatex(element) {
     const imgElement = element.querySelector('img');
     if (imgElement && imgElement.alt) {
       return cleanWikipediaLatex(imgElement.alt);
+    }
+    // If the element itself is an img
+    if (element.tagName.toLowerCase() === 'img' && element.alt) {
+      return cleanWikipediaLatex(element.alt);
     }
 
     // Fallback source element
@@ -271,16 +289,17 @@ function showNotification(element, type) {
   }, 2000);
 }
 
-// Run immediately and after a delay for dynamic content
+// run findLatexElements() immediately and also after a delay for dynamic content
 findLatexElements();
 setTimeout(findLatexElements, 1000);
 
-// Watch for dynamic changes with error handling
+// also run findLatexElements() on dynamic changes
 try {
   const observer = new MutationObserver((mutations) => {
     try {
       let shouldUpdate = false;
       
+      // check each mutation for math elements to set shouldUpdate
       for (const mutation of mutations) {
         // Check for new nodes
         if (mutation.type === 'childList') {
@@ -323,6 +342,7 @@ try {
         if (shouldUpdate) break;
       }
       
+      // if above we set shouldUpdate to true, then run findLatexElements()
       if (shouldUpdate) {
         console.log('Detected dynamic math content update');
         findLatexElements();
