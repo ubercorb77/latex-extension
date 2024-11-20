@@ -1,13 +1,39 @@
+/* Remove hover effect for math elements only */
+.mwe-math-element.latex-copyable:hover {
+  background-color: transparent !important;
+}
+
+/* Keep original hover for KaTeX */
 .latex-copyable:hover {
   background-color: rgba(74, 144, 226, 0.1) !important;
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
 
+/* Add specific hover for Wikipedia math images */
+.mwe-math-element img:hover {
+  background-color: rgba(74, 144, 226, 0.1) !important;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+
+.latex-copyable-wrapper {
+  position: relative;
+  display: inherit; /* inherit display from parent by default */
+}
+
+/* if it's wrapping an inline element, make sure it behaves like one */
+.latex-copyable-wrapper:has(.katex:not(.katex-display)) {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
 .latex-copier-notification {
-  position: fixed;
+  width: max-content;  /* this would force it to be as wide as its content needs */
+  position: absolute;
   background-color: #4CAF50;
-  color: white;
+  color: white !important; /* Now that we're appending the notification to the wrapper element (v1.1.0) instead of document.body (v1.0.0), it's probably inheriting text color styles from its parent element or other ancestor elements */
   padding: 8px 16px;
   border-radius: 4px;
   font-size: 14px;

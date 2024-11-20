@@ -62,7 +62,40 @@ function setupCopyableElement(element, extractorFn) {
     return;
   }
 
-  element.style.cursor = 'pointer';
+  // Check if element already has a positioned ancestor
+  let wrapper = element.closest('.latex-copyable-wrapper');
+
+  // If no wrapper exists, create one
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.className = 'latex-copyable-wrapper';
+
+    // Inherit display style from the element
+    const computedStyle = window.getComputedStyle(element);
+    wrapper.style.display = computedStyle.display;
+    
+    // Preserve inline behavior if needed
+    if (computedStyle.display === 'inline' || computedStyle.display === 'inline-block') {
+      wrapper.style.display = computedStyle.display;
+    }
+    
+    // Wrap the element
+    element.parentNode.insertBefore(wrapper, element);
+    wrapper.appendChild(element);
+  }
+  
+  // Set cursor style
+  if (element.classList.contains('mwe-math-element')) {
+    // for wikipedia elements, set cursor on the img inside the elem
+    const imgElement = element.querySelector('img');
+    if (imgElement) {
+      imgElement.style.cursor = 'pointer';
+    }
+  } else {
+    // for non-wikipedia elements (katex), set cursor on the whole elem
+    element.style.cursor = 'pointer';
+  }
+
   element.classList.add('latex-copyable');
   
   element.addEventListener('click', async (e) => {
@@ -199,11 +232,12 @@ function showNotification(element, type) {
   notification.textContent = config.message;
   notification.style.backgroundColor = config.backgroundColor;
   
-  document.body.appendChild(notification);
-  
-  const rect = element.getBoundingClientRect();
+  // Find the wrapper (which we created in setupCopyableElement)
+  const wrapper = element.closest('.latex-copyable-wrapper');
+  wrapper.appendChild(notification);
   
   // Calculate viewport-relative positions
+  const rect = element.getBoundingClientRect();
   let top = rect.top - 40; // 40px above the element
   let left = rect.left;
   
@@ -222,6 +256,9 @@ function showNotification(element, type) {
   if (top < margin) {
     top = rect.bottom + 10; // show below instead
   }
+
+  top -= rect.top;
+  left -= rect.left;
   
   notification.style.top = `${top}px`;
   notification.style.left = `${left}px`;
