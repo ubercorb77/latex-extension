@@ -25,18 +25,31 @@
 .latex-copier-notification {
   width: max-content;  /* this would force it to be as wide as its content needs */
   position: absolute;
-  background-color: #4CAF50;
-  color: white !important; /* Now that we're appending the notification to the wrapper element (v1.1.0) instead of document.body (v1.0.0), it's probably inheriting text color styles from its parent element or other ancestor elements */
   padding: 8px 16px;
   border-radius: 4px;
-  font-size: 14px;
   z-index: 10000;
-  animation: fadeOut 2s forwards;
+  animation: latexCopierNotificationFadeOut 2s forwards;
   pointer-events: none; /* Prevent notification from interfering with clicks */
   box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Add subtle shadow for better visibility */
+
+  /* reset and enforce specific styles */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  font-weight: normal !important;
+  text-align: center !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  text-decoration: none !important;
+  border: none !important;
+  margin: 0 !important;
+  
+  /* ensure colors are enforced */
+  color: white !important;
+  background-color: #4CAF50 !important;
 }
 
-@keyframes fadeOut {
+@keyframes latexCopierNotificationFadeOut {
   0% { opacity: 1; }
   70% { opacity: 1; }
   100% { opacity: 0; }

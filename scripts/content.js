@@ -62,43 +62,15 @@ function setupCopyableElement(element, type) {
   }
 
   /*
-  0. create a wrapper element (v1.1.0) to be the parent of the notif,
-     instead of the parent being document.body (v1.0.0)
   1. set cursor to pointer
   2. add latex-copyable class
   3. add click handler
   */
 
-  // Check if element already has a positioned ancestor
-  let wrapper = element.closest('.latex-copyable-wrapper');
-
-  // If no wrapper exists, create one
-  if (!wrapper) {
-    wrapper = document.createElement('div');
-    wrapper.className = 'latex-copyable-wrapper';
-
-    // Inherit display style from the element
-    const computedStyle = window.getComputedStyle(element);
-    wrapper.style.display = computedStyle.display;
-    
-    // Preserve inline behavior if needed
-    if (computedStyle.display === 'inline' || computedStyle.display === 'inline-block') {
-      wrapper.style.display = computedStyle.display;
-    }
-    
-    // Wrap the element
-    element.parentNode.insertBefore(wrapper, element);
-    wrapper.appendChild(element);
-  }
-
   element.style.cursor = 'pointer';
   // console.log(`[${timestamp()}] Added cursor style`); // debugging
 
-  if (type === "wikipedia") {
-    element.classList.add('latex-copyable');
-  } else if (type === "katex") {
-    wrapper.classList.add('latex-copyable');
-  } // god this code is kinda slop. pls forgive me
+  element.classList.add('latex-copyable');
 
   // console.log(`[${timestamp()}] Added latex-copyable class. Classes now:`, element.className); // debugging
   // console.log(`[${timestamp()}] Element:`, element); // debugging
@@ -250,9 +222,7 @@ function showNotification(element, type) {
   notification.textContent = config.message;
   notification.style.backgroundColor = config.backgroundColor;
   
-  // Find the wrapper (which we created in setupCopyableElement)
-  const wrapper = element.closest('.latex-copyable-wrapper');
-  wrapper.appendChild(notification);
+  element.parentElement.appendChild(notification);
   
   // Calculate viewport-relative positions
   const rect = element.getBoundingClientRect();
@@ -276,7 +246,9 @@ function showNotification(element, type) {
   }
 
   top -= rect.top;
+  top += element.offsetTop;
   left -= rect.left;
+  left += element.offsetLeft;
   
   notification.style.top = `${top}px`;
   notification.style.left = `${left}px`;
