@@ -1,13 +1,14 @@
 claude built the base functionality in under an hour (v1.0.0, the commit with message "better erorr handling i think") and i've cleaned it up a bit to fix some UX issues (v1.1.0)
 
+<a href="https://chromewebstore.google.com/detail/latex-copier/kgbkjmgilnbhfaihbekpoedfjmfdncgl">chrome web store link</a>
+
 <a href="https://www.flaticon.com/free-icons/panda" title="panda icons">Panda icons created by Freepik - Flaticon</a>
 
 ## TODOs:
+(x) = completed
+( ) = not completed
 
 known bugs
-- (x) apparently chatgpt uses some thing where i think the wrapper interferes with it when it tries to delete some node. need to test it out and see what exactly is causing the problem.
-    - okay i fixed it by removing the wrapper code entirely, and just adding the notif to the parent
-
 - (x) dynamic katex issues w blue hover (bc the class gets removed, it seems like)
 - (x) what if we just use katex to have the hover instead of a wrapper
     - wait why did we even create a wrapper elem in the first place - Ohhh it was to do the scrolling so that we could add the notif as a child of the wrapper elem instead of a child of the document body
@@ -15,6 +16,13 @@ known bugs
     - idk what to do
 okay i've just made it on the wrapper
 perhaps not the best fix, but it is a fix
+
+- WAIT DID I JUST SOLVE THE BELOW BUG BY REMOVING THE THING NECESSARY TO SOLVE THE ABOVE BUG????????????? AM I LIKE STUPID OR SMTH ?
+- or did i just stop caring and say "its okay if that happens"
+- also . maybe we can just change the mutationobserver to also activate for innerhtml (or attribute changes) (or smth)
+
+- (x) apparently chatgpt uses some thing where i think the wrapper interferes with it when it tries to delete some node. need to test it out and see what exactly is causing the problem.
+    - okay i fixed it by removing the wrapper code entirely, and just adding the notif to the parent
 
 also
 - (x) wikipedia cursor+hover is only on the img, but the click-copy functionality is on the whole span
