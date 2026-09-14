@@ -1,5 +1,5 @@
 // content.js
-console.log('LaTeX Copier Extension loaded!');
+// console.log('LaTeX Copier Extension loaded!');
 
 // Notification types and their configurations
 const NOTIFICATION_TYPES = {
@@ -21,7 +21,7 @@ function findLatexElements() {
   try {
     // Wikipedia math elements
     const wikiMathElements = document.querySelectorAll('.mwe-math-element');
-    console.log('Found Wiki math elements:', wikiMathElements.length);
+    // console.log('Found Wiki math elements:', wikiMathElements.length);
 
     // Process Wikipedia elements
     wikiMathElements.forEach(element => {
@@ -39,7 +39,7 @@ function findLatexElements() {
     // KaTeX elements (both display and inline)
     const katexElements = document.querySelectorAll('.katex-display, .katex:not(.katex-display .katex)');
     // ".katex:not(.katex-display .katex)" selects for elems with class katex but excludes those that are inside an element with the class katex-display
-    console.log('Found KaTeX elements:', katexElements.length);
+    // console.log('Found KaTeX elements:', katexElements.length);
 
     // Process KaTeX elements
     katexElements.forEach(element => {
@@ -89,7 +89,7 @@ function setupCopyableElement(element, type) {
     
     try {
       const latexSource = extractorFn(element);
-      console.log('Extracted LaTeX:', latexSource);
+      // console.log('Extracted LaTeX:', latexSource);
       
       if (!latexSource) {
         showNotification(element, 'WARNING');
@@ -110,7 +110,7 @@ function setupCopyableElement(element, type) {
 async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
-    console.log('Copied to clipboard:', text);
+    // console.log('Copied to clipboard:', text);
   } catch (error) {
     console.error('Failed to copy:', error);
     throw new Error('Failed to copy to clipboard');
@@ -203,11 +203,93 @@ function extractKatexLatex(element) {
       return texSource.getAttribute('data-latex');
     }
 
+    // Fallback: some sites (e.g. ChatGPT) render KaTeX with output:"html" only,
+    // so no MathML/annotation ever reaches the DOM. Recover the source from the
+    // React fiber props of the enclosing message, where the original markdown lives.
+    const viaFiber = extractKatexLatexViaReactFiber(element);
+    if (viaFiber) {
+      return viaFiber;
+    }
+
     return '';
   } catch (error) {
     console.error('Error extracting KaTeX LaTeX:', error);
     return '';
   }
+}
+
+// ChatGPT renders assistant replies as a React tree and strips KaTeX's MathML
+// annotation from the DOM. The original markdown (with \( \), \[ \], $$ $$ or
+// $ $ math) is still held in React's internal props on the message container -
+// but only page-world.js (running in the page's own JS world) can read it, since
+// expando properties like React's "__reactFiber$..." aren't visible from our
+// isolated world even though the DOM node itself is shared. So we ask it via a
+// DOM attribute handshake, then match the clicked element's position among the
+// message's rendered math elements to the same-position math source in the markdown.
+function extractKatexLatexViaReactFiber(element) {
+  try {
+    const messageContainer = element.closest('[data-message-author-role]');
+    if (!messageContainer) return '';
+
+    const markdown = requestMarkdownSourceFromPageWorld(messageContainer);
+    if (!markdown) return '';
+
+    const sources = extractMathSourcesFromMarkdown(markdown);
+    if (!sources.length) return '';
+
+    const mathElements = Array.from(
+      messageContainer.querySelectorAll('.katex-display, .katex:not(.katex-display .katex)')
+    );
+    const index = mathElements.indexOf(element);
+    if (index === -1 || index >= sources.length) return '';
+
+    return sources[index];
+  } catch (error) {
+    console.error('Error extracting KaTeX LaTeX via React fiber:', error);
+    return '';
+  }
+}
+
+let latexCopierRequestCounter = 0;
+
+// Synchronous handshake with page-world.js: dispatching an event on a shared DOM
+// node runs same-world and cross-world listeners synchronously and in order, so by
+// the time dispatchEvent() returns, page-world.js has already written its response
+// (if any) to a DOM attribute we can read immediately - no async messaging needed.
+function requestMarkdownSourceFromPageWorld(container) {
+  const requestId = 'r' + (++latexCopierRequestCounter) + '-' + Date.now();
+  const responseAttr = 'data-latex-copier-response-' + requestId;
+  try {
+    container.setAttribute('data-latex-copier-request', requestId);
+    container.dispatchEvent(new CustomEvent('latex-copier-request', { bubbles: true }));
+
+    const encoded = container.getAttribute(responseAttr);
+    if (!encoded) return null;
+    return decodeURIComponent(encoded);
+  } catch (error) {
+    console.error('Error requesting markdown source from page world:', error);
+    return null;
+  } finally {
+    container.removeAttribute('data-latex-copier-request');
+    container.removeAttribute(responseAttr);
+  }
+}
+
+function extractMathSourcesFromMarkdown(markdown) {
+  // Strip fenced/inline code, since math-looking delimiters inside code samples
+  // aren't actually rendered as math and would throw off the ordering.
+  const cleaned = markdown
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`\n]*`/g, '');
+
+  const pattern = /\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|\$([^\n$]+?)\$/g;
+  const sources = [];
+  let match;
+  while ((match = pattern.exec(cleaned)) !== null) {
+    const latex = match[1] ?? match[2] ?? match[3] ?? match[4];
+    sources.push(latex.trim());
+  }
+  return sources;
 }
 
 function showNotification(element, type) {
@@ -316,7 +398,7 @@ try {
       
       // if above we set shouldUpdate to true, then run findLatexElements()
       if (shouldUpdate) {
-        console.log('Detected dynamic math content update');
+        // console.log('Detected dynamic math content update');
         findLatexElements();
       }
     } catch (error) {
